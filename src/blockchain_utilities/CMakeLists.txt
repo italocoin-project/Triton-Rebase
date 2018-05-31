@@ -141,7 +141,7 @@ set_property(TARGET blockchain_export
 	OUTPUT_NAME "triton-blockchain-export")
 install(TARGETS blockchain_export DESTINATION bin)
 
-triton_add_executable(blockchain_blackball
+monero_add_executable(blockchain_blackball
   ${blockchain_blackball_sources}
   ${blockchain_blackball_private_headers})
 
