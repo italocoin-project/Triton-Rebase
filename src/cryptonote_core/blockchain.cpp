@@ -108,20 +108,7 @@ static const struct {
   uint8_t threshold;
   time_t time;
 } testnet_hard_forks[] = {
-  // version 1 from the start of the blockchain
-  { 1, 1, 0, 1341378000 },
 
-  // version 2 starts from block 624634, which is on or around the 23rd of November, 2015. Fork time finalised on 2015-11-20. No fork voting occurs for the v2 fork.
-  { 2, 624634, 0, 1445355000 },
-
-  // versions 3-5 were passed in rapid succession from September 18th, 2016
-  { 3, 800500, 0, 1472415034 },
-  { 4, 801219, 0, 1472415035 },
-  { 5, 802660, 0, 1472415036 + 86400*180 }, // add 5 months on testnet to shut the update warning up since there's a large gap to v6
-
-  { 6, 971400, 0, 1501709789 },
-  { 7, 1057027, 0, 1512211236 },
-  { 8, 1057058, 0, 1515967497 },
 };
 static const uint64_t testnet_hard_fork_version_1_till = 624633;
 
@@ -131,16 +118,7 @@ static const struct {
   uint8_t threshold;
   time_t time;
 } stagenet_hard_forks[] = {
-  // version 1 from the start of the blockchain
-  { 1, 1, 0, 1341378000 },
 
-  // versions 2-7 in rapid succession from March 13th, 2018
-  { 2, 32000, 0, 1521000000 },
-  { 3, 33000, 0, 1521120000 },
-  { 4, 34000, 0, 1521240000 },
-  { 5, 35000, 0, 1521360000 },
-  { 6, 36000, 0, 1521480000 },
-  { 7, 37000, 0, 1521600000 },
 };
 
 //------------------------------------------------------------------
@@ -1121,9 +1099,10 @@ bool Blockchain::validate_miner_transaction(const block& b, size_t cumulative_bl
     return false;
   }
     CHECK_AND_ASSERT_MES(money_in_use - fee <= base_reward, false, "base reward calculation bug");
-    if(base_reward + fee != money_in_use)
+    if(base_reward + fee != money_in_use){
       partial_block_reward = true;
     base_reward = money_in_use - fee;
+	}
 
   return true;
 }
@@ -2465,7 +2444,7 @@ bool Blockchain::check_tx_outputs(const transaction& tx, tx_verification_context
   const uint8_t hf_version = m_hardfork->get_current_version();
 
   // from hard fork 2, we forbid dust and compound outputs
-  if (hf_version >= 2) {
+  if (hf_version >= 4) {
     for (auto &o: tx.vout) {
       if (tx.version == 1)
       {
@@ -4061,8 +4040,8 @@ bool Blockchain::prepare_handle_incoming_blocks(const std::list<block_complete_e
           crypto::hash tophash = m_db->top_block_hash();
           if (block.prev_id != tophash)
           {
-            MDEBUG("Skipping prepare blocks. New blocks don't belong to chain.");
-            return true;
+            MDEBUG("Skipping prepare blocks. New blocks don't belong to chain. Prev id: " << block.prev_id << " top hash: " << tophash);
+             return true;
           }
         }
         if (have_block(get_block_hash(block)))
