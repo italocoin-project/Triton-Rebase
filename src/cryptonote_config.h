@@ -40,8 +40,8 @@
 #define CRYPTONOTE_GETBLOCKTEMPLATE_MAX_BLOCK_SIZE	196608 //size of block (bytes) that is the maximum that miners will produce
 #define CRYPTONOTE_MAX_TX_SIZE                          1000000000
 #define CRYPTONOTE_PUBLIC_ADDRESS_TEXTBLOB_VER          0
-#define CRYPTONOTE_MINED_MONEY_UNLOCK_WINDOW            60
-#define CURRENT_TRANSACTION_VERSION                     2
+#define CRYPTONOTE_MINED_MONEY_UNLOCK_WINDOW            30
+#define CURRENT_TRANSACTION_VERSION                     1
 #define CURRENT_BLOCK_MAJOR_VERSION                     1
 #define CURRENT_BLOCK_MINOR_VERSION                     0
 #define BLOCK_MAJOR_VERSION_1                           1
@@ -166,7 +166,7 @@ namespace config
       0x12 ,0x30, 0xF1, 0x71 , 0x61, 0x04 , 0x41, 0x61, 0x17, 0x31, 0x00, 0x82, 0x16, 0xA1, 0xA1, 0x10
     } }; // Bender's nightmare
   std::string const GENESIS_TX = "011e01ff0001c08db7010230e5cf1935ea03354beeecdfd94b46d425d1e0b85333edd4f99cdfde6c65adea21012569ed651af1f16d3c49ecafb944db6a6f78ba5977f594678ff891f0bdb80354";
-  uint32_t const GENESIS_NONCE = 10000;
+  uint32_t const GENESIS_NONCE = 70;
 
   namespace testnet
   {
@@ -180,7 +180,7 @@ namespace config
         0x17 ,0x19, 0xF5, 0x67 , 0x65, 0x03 , 0x42, 0x62, 0x15, 0x21, 0x01, 0x72, 0x14, 0xA3, 0xA5, 0x14
       } }; // Bender's daydream
     std::string const GENESIS_TX = "011e01ff0001c08db7010230e5cf1935ea03354beeecdfd94b46d425d1e0b85333edd4f99cdfde6c65adea21012569ed651af1f16d3c49ecafb944db6a6f78ba5977f594678ff891f0bdb79243";
-    uint32_t const GENESIS_NONCE = 10001;
+    uint32_t const GENESIS_NONCE = 71;
   }
 
   namespace stagenet
@@ -195,7 +195,7 @@ namespace config
         0x14 ,0x20, 0xF3, 0x71 , 0x61, 0x02 , 0x31, 0x61, 0x17, 0x34, 0x01, 0x85, 0x13, 0xA1, 0xA1, 0x13
       } }; // Bender's daydream
     std::string const GENESIS_TX = "013c01ff0001ffffffffffff0302df5d56da0c7d643ddd1ce61901c7bdc5fb1738bfe39fbe69c28a3a7032729c0f2101168d0c4ca86fb55a4cf6a36d31431be1c53a3bd7411bb24e8832410289fa6f3b";
-    uint32_t const GENESIS_NONCE = 10002;
+    uint32_t const GENESIS_NONCE = 72;
   }
 }
 
