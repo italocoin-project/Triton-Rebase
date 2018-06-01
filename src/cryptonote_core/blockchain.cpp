@@ -93,10 +93,10 @@ static const struct {
   { 2, 1, 0, 1519744920 },
 
   { 3, 2, 0, 1519744920 },
-  
+
   { 4, 24830, 0, 1524668700 },
-  
-  { 5, 24860, 0, 1524968340 },  
+
+  { 5, 24860, 0, 1524968340 },
 
   { 7, 45000, 0, 1529338629 },
 };
@@ -1176,6 +1176,7 @@ bool Blockchain::create_block_template(block& b, const account_public_address& m
   }
   else
 	  b.minor_version = m_hardfork->get_ideal_version();
+
   b.prev_id = get_tail_id();
   b.timestamp = time(NULL);
 
@@ -1454,12 +1455,12 @@ bool Blockchain::handle_alternative_block(const block& b, const crypto::hash& id
     CHECK_AND_ASSERT_MES(current_diff, false, "!!!!!!! DIFFICULTY OVERHEAD !!!!!!!");
     crypto::hash proof_of_work = null_hash;
     if (!check_proof_of_work(bei.bl, current_diff, proof_of_work))
-	{
+	   {
 		MERROR_VER("Block with id: " << id << std::endl << " for alternative chain, does not have enough proof of work: " << proof_of_work << std::endl << "unexpected difficulty: " << current_diff);
 		MDEBUG("Block info - ts " << bei.bl.timestamp << " nonce " << bei.bl.nonce);
 		bvc.m_verifivation_failed = true;
 		return false;
-	}
+	 }
     /*if(!check_hash(proof_of_work, current_diff))
     {
       MERROR_VER("Block with id: " << id << std::endl << " for alternative chain, does not have enough proof of work: " << proof_of_work << std::endl << " expected difficulty: " << current_diff);
@@ -3010,7 +3011,7 @@ bool Blockchain::check_fee(size_t blob_size, uint64_t fee) const
   uint64_t fee_per_kb;
   if (version < HF_VERSION_DYNAMIC_FEE)
   {
-	  return fee >= LEGACY_MINIMUM_FEE;  
+	  return fee >= LEGACY_MINIMUM_FEE;
     fee_per_kb = FEE_PER_KB;
   }
   else
@@ -3365,16 +3366,13 @@ leave:
     {
       precomputed = true;
       proof_of_work = it->second;
-    }
-    else
-      {
-		if (!check_proof_of_work(bl, current_diffic, proof_of_work)) 
+    } else{
+		if (!check_proof_of_work(bl, current_diffic, proof_of_work))
 		{
 			MERROR_VER("Block with id: " << id << std::endl << "does not have enough proof of work: " << proof_of_work << std::endl << "unexpected difficulty: " << current_diffic);
 			bvc.m_verifivation_failed = true;
 			goto leave;
 		}
-
 	}
 
     // validate proof_of_work versus difficulty target
@@ -3385,7 +3383,7 @@ leave:
       goto leave;
     }
   }*/
-
+}
   // If we're at a checkpoint, ensure that our hardcoded checkpoint hash
   // is correct.
   if(m_checkpoints.is_in_checkpoint_zone(get_current_blockchain_height()))
@@ -3758,7 +3756,7 @@ void Blockchain::block_longhash_worker(uint64_t height, const std::vector<block>
 		get_block_longhash(block, height++);
 		map.emplace(id, pow);
 	}
-	else 
+	else
 	{
 		if (!get_bytecoin_block_longhash(block, pow)) {
 			MDEBUG("Block longhash worker: failed to get bytecoin block longhash");
@@ -4551,5 +4549,4 @@ bool Blockchain::for_all_outputs(uint64_t amount, std::function<bool(uint64_t he
 
 namespace cryptonote {
 template bool Blockchain::get_transactions(const std::vector<crypto::hash>&, std::list<transaction>&, std::list<crypto::hash>&) const;
-template bool Blockchain::get_transactions_blobs(const std::vector<crypto::hash>&, std::list<cryptonote::blobdata>&, std::list<crypto::hash>&, bool) const;
 }
