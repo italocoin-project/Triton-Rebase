@@ -162,5 +162,3 @@ namespace cryptonote {
         return nextDiffZ;
       }
   }
-
-}
