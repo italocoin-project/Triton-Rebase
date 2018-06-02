@@ -131,7 +131,7 @@ namespace cryptonote {
         uint64_t  t = 0,d=0;
 
     	int64_t solvetime=0;
-    	int64_t diff=0;
+    	difficulty_type diff = 0;
 
         for (size_t i = 1; i < length; i++) {
             solvetime = timestamps[i] - timestamps[i-1];
