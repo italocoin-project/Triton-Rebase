@@ -131,7 +131,7 @@ namespace cryptonote {
         uint64_t  t = 0,d=0;
 
     	int64_t solvetime=0;
-    	difficulty_type diff = 0;
+    	int64_t diff = 0;
 
         for (size_t i = 1; i < length; i++) {
             solvetime = timestamps[i] - timestamps[i-1];
@@ -151,7 +151,7 @@ namespace cryptonote {
     	long unsigned int avgtime=t/length;
     	long unsigned int avgdiff=d/length;
     	long unsigned int adj=(T*1000/avgtime);
-    	long unsigned difficulty_type nextDiffZ = (avgdiff*adj)/1000;
+    	long unsigned int nextDiffZ = (avgdiff*adj)/1000;
     	//printf("avgdiff:%f, avgtime:%f   adj:%f   nextdiff:%lu\n",avgdiff,avgtime,adj,nextDiffZ);
 
         if (nextDiffZ <= 1) {
