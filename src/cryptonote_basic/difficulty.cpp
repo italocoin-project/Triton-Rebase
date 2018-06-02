@@ -121,28 +121,28 @@ namespace cryptonote {
 
   difficulty_type next_difficulty(std::vector<std::uint64_t> timestamps, std::vector<difficulty_type> cumulative_difficulties, size_t target_seconds) {
 
-    		int64_t T = target_seconds;
+    	 int64_t T = target_seconds;
 
     	//printf("size ts:%lu\n",timestamps.size());
 
-        size_t length = timestamps.size();
-        assert(length == cumulativeDifficulties.size());
+       size_t length = timestamps.size();
+       assert(length == cumulativeDifficulties.size());
 
-        uint64_t  t = 0,d=0;
+       uint64_t  t = 0,d=0;
 
-    	int64_t solvetime=0;
-    	int64_t diff = 0;
+    	 int64_t solvetime=0;
+    	 int64_t diff = 0;
 
         for (size_t i = 1; i < length; i++) {
             solvetime = timestamps[i] - timestamps[i-1];
-    	       diff = cumulativeDifficulties[i] - cumulativeDifficulties[i-1];
+    	      difficulty_type totalwork = cumulativeDifficulties[i] - cumulativeDifficulties[i-1];
     	//printf("%lu: TS:%lu    solvetime:%d,  diff:%d\n",i,timestamps[i],solvetime,diff);
 
     	//cap crazy  values
         if (solvetime < 0) { solvetime = 0; }
 
             t +=  solvetime ;
-    		d+=diff;
+    		    d+=totalwork;
 
 
         }
