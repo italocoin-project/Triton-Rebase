@@ -1,21 +1,21 @@
 // Copyright (c) 2014-2018, The Monero Project
-// 
+//
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification, are
 // permitted provided that the following conditions are met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright notice, this list of
 //    conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above copyright notice, this list
 //    of conditions and the following disclaimer in the documentation and/or other
 //    materials provided with the distribution.
-// 
+//
 // 3. Neither the name of the copyright holder nor the names of its contributors may be
 //    used to endorse or promote products derived from this software without specific
 //    prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 // MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
@@ -25,7 +25,7 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// 
+//
 // Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
 
 #pragma once
@@ -62,8 +62,8 @@
 
 #define CRYPTONOTE_REWARD_BLOCKS_WINDOW                 100
 #define CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE_V1    100000
-#define CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE_V2    90000 
-#define CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE_V5    300000 
+#define CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE_V2    90000
+#define CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE_V5    300000
 #define CRYPTONOTE_COINBASE_BLOB_RESERVED_SIZE          600
 #define CRYPTONOTE_DISPLAY_DECIMAL_POINT                12
 // COIN - number of smallest units in one coin
@@ -163,7 +163,7 @@ namespace config
   uint16_t const RPC_DEFAULT_PORT = 9131;
   uint16_t const ZMQ_RPC_DEFAULT_PORT = 9132;
   boost::uuids::uuid const NETWORK_ID = { {
-      0x16 ,0x35, 0xF1, 0x71 , 0x61, 0x05 , 0x41, 0x61, 0x13, 0x21, 0x00, 0x62, 0x12, 0xA1, 0xA2, 0x12
+      0x03, 0x0f, 0x1b, 0x4c, 0x5a, 0x3b, 0x03, 0xd3, 0x8b, 0x15, 0x03, 0x2f, 0x8a, 0x02, 0x3b, 0x7a
     } }; // Bender's nightmare
   std::string const GENESIS_TX = "011e01ff0001c08db7010230e5cf1935ea03354beeecdfd94b46d425d1e0b85333edd4f99cdfde6c65adea21012569ed651af1f16d3c49ecafb944db6a6f78ba5977f594678ff891f0bdb80354";
   uint32_t const GENESIS_NONCE = 70;

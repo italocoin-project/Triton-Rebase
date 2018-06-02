@@ -121,45 +121,46 @@ namespace cryptonote {
 
   difficulty_type next_difficulty(std::vector<std::uint64_t> timestamps, std::vector<difficulty_type> cumulative_difficulties, size_t target_seconds) {
 
-    if(timestamps.size() > DIFFICULTY_WINDOW)
-    {
-      timestamps.resize(DIFFICULTY_WINDOW);
-      cumulative_difficulties.resize(DIFFICULTY_WINDOW);
-    }
+    		int64_t T = m_difficultyTarget;
+
+    	//printf("size ts:%lu\n",timestamps.size());
+
+        size_t length = timestamps.size();
+        assert(length == cumulativeDifficulties.size());
+
+        uint64_t  t = 0,d=0;
+
+    	int64_t solvetime=0;
+    	int64_t diff=0;
+
+        for (size_t i = 1; i < length; i++) {
+            solvetime = timestamps[i] - timestamps[i-1];
+    	diff = cumulativeDifficulties[i] - cumulativeDifficulties[i-1];
+    	//printf("%lu: TS:%lu    solvetime:%d,  diff:%d\n",i,timestamps[i],solvetime,diff);
+
+    	//cap crazy  values
+        if (solvetime < 0) { solvetime = 0; }
+
+            t +=  solvetime ;
+    		d+=diff;
 
 
-    size_t length = timestamps.size();
-    assert(length == cumulative_difficulties.size());
-    if (length <= 1) {
-      return 1;
-    }
-    static_assert(DIFFICULTY_WINDOW >= 2, "Window is too small");
-    assert(length <= DIFFICULTY_WINDOW);
-    sort(timestamps.begin(), timestamps.end());
-    size_t cut_begin, cut_end;
-    static_assert(2 * DIFFICULTY_CUT <= DIFFICULTY_WINDOW - 2, "Cut length is too large");
-    if (length <= DIFFICULTY_WINDOW - 2 * DIFFICULTY_CUT) {
-      cut_begin = 0;
-      cut_end = length;
-    } else {
-      cut_begin = (length - (DIFFICULTY_WINDOW - 2 * DIFFICULTY_CUT) + 1) / 2;
-      cut_end = cut_begin + (DIFFICULTY_WINDOW - 2 * DIFFICULTY_CUT);
-    }
-    assert(/*cut_begin >= 0 &&*/ cut_begin + 2 <= cut_end && cut_end <= length);
-    uint64_t time_span = timestamps[cut_end - 1] - timestamps[cut_begin];
-    if (time_span == 0) {
-      time_span = 1;
-    }
-    difficulty_type total_work = cumulative_difficulties[cut_end - 1] - cumulative_difficulties[cut_begin];
-    assert(total_work > 0);
-    uint64_t low, high;
-    mul(total_work, target_seconds, low, high);
-    // blockchain errors "difficulty overhead" if this function returns zero.
-    // TODO: consider throwing an exception instead
-    if (high != 0 || low + time_span - 1 < low) {
-      return 0;
-    }
-    return (low + time_span - 1) / time_span;
+        }
+
+
+    	long unsigned int avgtime=t/length;
+    	long unsigned int avgdiff=d/length;
+    	long unsigned int adj=(T*1000/avgtime);
+    	long unsigned int nextDiffZ = (avgdiff*adj)/1000;
+    	//printf("avgdiff:%f, avgtime:%f   adj:%f   nextdiff:%lu\n",avgdiff,avgtime,adj,nextDiffZ);
+
+        if (nextDiffZ <= 1) {
+          nextDiffZ = 1;
+        }
+
+
+        return nextDiffZ;
+      }
   }
 
 }
