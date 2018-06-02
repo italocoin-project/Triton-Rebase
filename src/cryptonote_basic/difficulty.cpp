@@ -126,7 +126,7 @@ namespace cryptonote {
     	//printf("size ts:%lu\n",timestamps.size());
 
        size_t length = timestamps.size();
-       assert(length == cumulativeDifficulties.size());
+       assert(length == cumulative_difficulties.size());
 
        uint64_t  t = 0,d=0;
 
@@ -135,14 +135,14 @@ namespace cryptonote {
 
         for (size_t i = 1; i < length; i++) {
             solvetime = timestamps[i] - timestamps[i-1];
-    	      difficulty_type totalwork = cumulativeDifficulties[i] - cumulativeDifficulties[i-1];
+    	      diff = cumulative_difficulties[i] - cumulative_difficulties[i-1];
     	//printf("%lu: TS:%lu    solvetime:%d,  diff:%d\n",i,timestamps[i],solvetime,diff);
 
     	//cap crazy  values
         if (solvetime < 0) { solvetime = 0; }
 
             t +=  solvetime ;
-    		    d+=totalwork;
+    		    d+=diff;
 
 
         }
