@@ -134,7 +134,8 @@ extern int aesb_pseudo_round(const uint8_t *in, uint8_t *out, const uint8_t *exp
 #define U64(x) ((uint64_t *) (x))
 #define R128(x) ((__m128i *) (x))
 
-#define state_index(x,div) (((*((uint64_t *)x) >> 4) & (TOTALBLOCKS /(div) - 1)) << 4)#if defined(_MSC_VER)
+#define state_index(x,div) (((*((uint64_t *)x) >> 4) & (TOTALBLOCKS /(div) - 1)) << 4)
+#if defined(_MSC_VER)
 #if !defined(_WIN64)
 #define __mul() lo = mul128(c[0], b[0], &hi);
 #else
@@ -616,7 +617,7 @@ void cn_slow_hash(const void *data, size_t length, char *hash, int light, int va
     {
         aes_ctx = (oaes_ctx *) oaes_alloc();
         oaes_key_import_data(aes_ctx, state.hs.b, AES_KEY_SIZE);
-         for(i = 0; i < MEMORY / (light?2:1) / INIT_SIZE_BYTE; i++)
+        for(i = 0; i < MEMORY / (light?2:1) / INIT_SIZE_BYTE; i++)
         {
             for(j = 0; j < INIT_SIZE_BLK; j++)
                 aesb_pseudo_round(&text[AES_BLOCK_SIZE * j], &text[AES_BLOCK_SIZE * j], aes_ctx->key->exp_data);
