@@ -1072,9 +1072,9 @@ namespace cryptonote
 	  if (!get_bytecoin_block_hashing_blob(b, bd))
 		  return false;
       if(b.major_version <= 3){
-      crypto::cn_slow_hash(bd.data(), bd.size(), res, 0, cn_variant);
+      crypto::cn_slow_hash(bd.data(), bd.size(), res, 0,0);
     }else if(b.major_version >= 4){
-      crypto::cn_slow_hash(bd.data(), bd.size(), res, 1, cn_variant);
+      crypto::cn_slow_hash(bd.data(), bd.size(), res, 1,1);
     }
 	  return true;
   }
