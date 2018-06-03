@@ -1035,7 +1035,7 @@ difficulty_type Blockchain::get_next_difficulty_for_alternative_chain(const std:
   size_t target = get_ideal_hard_fork_version(bei.height) < 2 ? DIFFICULTY_TARGET_V1 : DIFFICULTY_TARGET_V2;
 
   // calculate the difficulty target for the block and return it
-  return next_difficulty(bei.height,timestamps, cumulative_difficulties, target);
+  return next_difficulty(DIFFICULTY_BLOCKS_COUNT,timestamps, cumulative_difficulties, target);
 }
 //------------------------------------------------------------------
 // This function does a sanity check on basic things that all miner
