@@ -119,7 +119,7 @@ namespace cryptonote {
     return !carry;
   }
 
-  difficulty_type next_difficulty(int64_t height,std::vector<std::uint64_t> timestamps, std::vector<difficulty_type> cumulative_difficulties, size_t target_seconds) {
+  difficulty_type next_difficulty(size_t height,std::vector<std::uint64_t> timestamps, std::vector<difficulty_type> cumulative_difficulties, size_t target_seconds) {
 
        if(height >= 24860){
     	 int64_t T = target_seconds;
