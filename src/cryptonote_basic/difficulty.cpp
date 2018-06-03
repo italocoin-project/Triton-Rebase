@@ -119,8 +119,9 @@ namespace cryptonote {
     return !carry;
   }
 
-  difficulty_type next_difficulty(std::vector<std::uint64_t> timestamps, std::vector<difficulty_type> cumulative_difficulties, size_t target_seconds) {
+  difficulty_type next_difficulty(uint64_t height,std::vector<std::uint64_t> timestamps, std::vector<difficulty_type> cumulative_difficulties, size_t target_seconds) {
 
+       if(height >= 24860){
     	 int64_t T = target_seconds;
 
     	//printf("size ts:%lu\n",timestamps.size());
@@ -160,5 +161,54 @@ namespace cryptonote {
 
 
         return nextDiffZ;
+      }else if(height < 24859){
+
+        size_t c_difficultyWindow = 24 * 60 * 60 / 180;
+        size_t c_difficultyCut = 60;
+
+        assert(c_difficultyWindow >= 2);
+
+        if (timestamps.size() > c_difficultyWindow) {
+          timestamps.resize(c_difficultyWindow);
+          cumulative_difficulties.resize(c_difficultyWindow);
+        }
+
+        size_t length = timestamps.size();
+        assert(length == cumulative_difficulties.size());
+        assert(length <= c_difficultyWindow);
+        if (length <= 1) {
+          return 1;
+        }
+
+        sort(timestamps.begin(), timestamps.end());
+
+        size_t cutBegin, cutEnd;
+        assert(2 * c_difficultyCut <= c_difficultyWindow - 2);
+        if (length <= c_difficultyWindow - 2 * c_difficultyCut) {
+          cutBegin = 0;
+          cutEnd = length;
+        } else {
+          cutBegin = (length - (c_difficultyWindow - 2 * c_difficultyCut) + 1) / 2;
+          cutEnd = cutBegin + (c_difficultyWindow - 2 * c_difficultyCut);
+        }
+
+        assert(/*cut_begin >= 0 &&*/ cutBegin + 2 <= cutEnd && cutEnd <= length);
+        uint64_t timeSpan = timestamps[cutEnd - 1] - timestamps[cutBegin];
+        if (timeSpan == 0) {
+          timeSpan = 1;
+        }
+
+        Difficulty totalWork = cumulative_difficulties[cutEnd - 1] - cumulative_difficulties[cutBegin];
+        assert(totalWork > 0);
+
+        uint64_t low, high;
+        low = mul128(totalWork, m_difficultyTarget, &high);
+        if (high != 0 || std::numeric_limits<uint64_t>::max() - low < (timeSpan - 1)) {
+          return 0;
+        }
+          uint64_t nextDiffZ = low / timeSpan;
+
+          return nextDiffZ;
+    }
       }
   }
