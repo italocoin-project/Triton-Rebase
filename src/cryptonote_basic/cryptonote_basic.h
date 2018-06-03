@@ -438,7 +438,7 @@ namespace cryptonote
       if (mm_tag.depth != b.blockchain_branch.size()) {
 			  MERROR("Mm tag depth != blockchian_branch size");
  			  return false;
-+	  }
+	  }
 		  for (size_t i = 0; i < mm_tag.depth; ++i)
 		  {
 			  FIELDS(b.blockchain_branch[i]);
