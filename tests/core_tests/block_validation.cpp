@@ -45,7 +45,7 @@ namespace
     for (size_t i = 0; i < new_block_count; ++i)
     {
       block blk_next;
-      difficulty_type diffic = next_difficulty(0,timestamps, cummulative_difficulties,DIFFICULTY_TARGET_V1);
+      difficulty_type diffic = next_difficulty(timestamps, cummulative_difficulties,DIFFICULTY_TARGET_V1,0);
       if (!generator.construct_block_manually(blk_next, blk_prev, miner_account,
         test_generator::bf_timestamp | test_generator::bf_diffic, 0, 0, blk_prev.timestamp, crypto::hash(), diffic))
         return false;

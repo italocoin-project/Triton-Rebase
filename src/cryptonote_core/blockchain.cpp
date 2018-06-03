@@ -829,7 +829,7 @@ difficulty_type Blockchain::get_difficulty_for_next_block()
     m_difficulties = difficulties;
   }
   size_t target = get_difficulty_target();
-  difficulty_type diff = next_difficulty(height - 1,timestamps, difficulties, target);
+  difficulty_type diff = next_difficulty(timestamps, difficulties, target,height - 1);
   m_difficulty_for_next_block_top_hash = top_hash;
   m_difficulty_for_next_block = diff;
   return diff;
