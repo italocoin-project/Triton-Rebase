@@ -198,11 +198,11 @@ namespace cryptonote {
           timeSpan = 1;
         }
 
-        Difficulty totalWork = cumulative_difficulties[cutEnd - 1] - cumulative_difficulties[cutBegin];
+        difficulty_type totalWork = cumulative_difficulties[cutEnd - 1] - cumulative_difficulties[cutBegin];
         assert(totalWork > 0);
 
         uint64_t low, high;
-        low = mul128(totalWork, m_difficultyTarget, &high);
+        low = mul128(totalWork, target_seconds, &high);
         if (high != 0 || std::numeric_limits<uint64_t>::max() - low < (timeSpan - 1)) {
           return 0;
         }
