@@ -1,21 +1,21 @@
 // Copyright (c) 2014-2018, The Monero Project
-// 
+//
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification, are
 // permitted provided that the following conditions are met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright notice, this list of
 //    conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above copyright notice, this list
 //    of conditions and the following disclaimer in the documentation and/or other
 //    materials provided with the distribution.
-// 
+//
 // 3. Neither the name of the copyright holder nor the names of its contributors may be
 //    used to endorse or promote products derived from this software without specific
 //    prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 // MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
@@ -25,7 +25,7 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// 
+//
 // Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
 
 #pragma once
@@ -67,6 +67,7 @@ namespace cryptonote
 
   struct txout_to_script
   {
+
     std::vector<crypto::public_key> keys;
     std::vector<uint8_t> script;
 
@@ -167,7 +168,7 @@ namespace cryptonote
     // tx information
     size_t   version;
     uint64_t unlock_time;  //number of block (or time), used as a limitation like: spend this tx not early then block/time
-
+    bool is_mm_tx;
     std::vector<txin_v> vin;
     std::vector<tx_out> vout;
     //extra
@@ -175,7 +176,7 @@ namespace cryptonote
 
     BEGIN_SERIALIZE()
       VARINT_FIELD(version)
-      if(version == 0 || CURRENT_TRANSACTION_VERSION < version) return false;
+      if((version == 0 || CURRENT_TRANSACTION_VERSION < version) && !is_mm_tx) return false;
       VARINT_FIELD(unlock_time)
       FIELD(vin)
       FIELD(vout)
@@ -221,14 +222,16 @@ namespace cryptonote
 
       FIELDS(*static_cast<transaction_prefix *>(this))
 
-      if (version == 1)
+      if (version <= 1)
       {
         ar.tag("signatures");
         ar.begin_array();
         PREPARE_CUSTOM_VECTOR_SERIALIZATION(vin.size(), signatures);
         bool signatures_not_expected = signatures.empty();
-        if (!signatures_not_expected && vin.size() != signatures.size())
-          return false;
+        if (!signatures_not_expected && vin.size() != signatures.size()) {
+  		  MERROR("Failed TX sig check");
+			  return false;
+  		}
 
         for (size_t i = 0; i < vin.size(); ++i)
         {
@@ -242,8 +245,10 @@ namespace cryptonote
           }
 
           PREPARE_CUSTOM_VECTOR_SERIALIZATION(signature_size, signatures[i]);
-          if (signature_size != signatures[i].size())
-            return false;
+          if (signature_size != signatures[i].size()) {
+    			  MERROR("Failed TX size check");
+    			  return false;
+		        }
 
           FIELDS(signatures[i]);
 
@@ -266,7 +271,7 @@ namespace cryptonote
             ar.tag("rctsig_prunable");
             ar.begin_object();
             r = rct_signatures.p.serialize_rctsig_prunable(ar, rct_signatures.type, vin.size(), vout.size(),
-                vin.size() > 0 && vin[0].type() == typeid(txin_to_key) ? boost::get<txin_to_key>(vin[0]).key_offsets.size() - 1 : 0);
+                vin[0].type() == typeid(txin_to_key) ? boost::get<txin_to_key>(vin[0]).key_offsets.size() - 1 : 0);
             if (!r || !ar.stream().good()) return false;
             ar.end_object();
           }
@@ -279,7 +284,7 @@ namespace cryptonote
     {
       FIELDS(*static_cast<transaction_prefix *>(this))
 
-      if (version == 1)
+      if (version <= 1)
       {
       }
       else
@@ -318,6 +323,7 @@ namespace cryptonote
   {
     version = 1;
     unlock_time = 0;
+    is_mm_tx = false;
     vin.clear();
     vout.clear();
     extra.clear();
@@ -348,7 +354,6 @@ namespace cryptonote
     return boost::apply_visitor(txin_signature_size_visitor(), tx_in);
   }
 
-	const uint8_t CURRENT_BYTECOIN_BLOCK_MAJOR_VERSION = 5;
 	struct bytecoin_block
   {
 	  uint8_t major_version;
@@ -371,11 +376,11 @@ namespace cryptonote
 	  serializable_bytecoin_block(bytecoin_block& b_, uint64_t& timestamp_, bool hashing_serialization_, bool header_only_) :
 		  b(b_), timestamp(timestamp_), hashing_serialization(hashing_serialization_), header_only(header_only_)
 	  {
+       b.miner_tx.is_mm_tx = true;
 	  }
 
 	  BEGIN_SERIALIZE_OBJECT()
-		  VARINT_FIELD_N("major_version", b.major_version);
-	  if (b.major_version > CURRENT_BYTECOIN_BLOCK_MAJOR_VERSION) return false;
+		VARINT_FIELD_N("major_version", b.major_version);
 	  VARINT_FIELD_N("minor_version", b.minor_version);
 	  VARINT_FIELD(timestamp);
 	  FIELD_N("prev_id", b.prev_id);
@@ -384,8 +389,10 @@ namespace cryptonote
 	  if (hashing_serialization)
 	  {
 		  crypto::hash miner_tx_hash;
-		  if (!get_transaction_hash(b.miner_tx, miner_tx_hash))
-			  return false;
+      if (!get_transaction_hash(b.miner_tx, miner_tx_hash)) {
+  		  MERROR("Failed to get transaction hash for miner tx");
+   		  return false;
+	    }
 
 		  crypto::hash merkle_root;
 		  crypto::tree_hash_from_branch(b.miner_tx_branch.data(), b.miner_tx_branch.size(), miner_tx_hash, 0, merkle_root);
@@ -394,8 +401,10 @@ namespace cryptonote
 	  }
 
 	  VARINT_FIELD_N("number_of_transactions", b.number_of_transactions);
-	  if (b.number_of_transactions < 1)
-		  return false;
+    if (b.number_of_transactions < 1) {
+		  MERROR("Num tx < 1?");
+ 		  return false;
+	  }
 
 	  if (!header_only)
 	  {
@@ -403,8 +412,10 @@ namespace cryptonote
 		  ar.begin_array();
 		  size_t branch_size = crypto::tree_depth(b.number_of_transactions);
 		  PREPARE_CUSTOM_VECTOR_SERIALIZATION(branch_size, const_cast<bytecoin_block&>(b).miner_tx_branch);
-		  if (b.miner_tx_branch.size() != branch_size)
-			  return false;
+      if (b.miner_tx_branch.size() != branch_size) {
+			  MERROR("Miner tx branch size != branch size");
+ 			  return false;
+		  }
 		  for (size_t i = 0; i < branch_size; ++i)
 		  {
 			  FIELDS(b.miner_tx_branch[i]);
@@ -416,14 +427,18 @@ namespace cryptonote
 		  FIELD(b.miner_tx);
 
 		  tx_extra_merge_mining_tag mm_tag;
-		  if (!get_mm_tag_from_extra(b.miner_tx.extra, mm_tag))
-			  return false;
+      if (!get_mm_tag_from_extra(b.miner_tx.extra, mm_tag)) {
+			  MERROR("Failed to get mm tag from extra.");
+ 			  return false;
+		  }
 
 		  ar.tag("blockchain_branch");
 		  ar.begin_array();
 		  PREPARE_CUSTOM_VECTOR_SERIALIZATION(mm_tag.depth, const_cast<bytecoin_block&>(b).blockchain_branch);
-		  if (mm_tag.depth != b.blockchain_branch.size())
-			  return false;
+      if (mm_tag.depth != b.blockchain_branch.size()) {
+			  MERROR("Mm tag depth != blockchian_branch size");
+ 			  return false;
++	  }
 		  for (size_t i = 0; i < mm_tag.depth; ++i)
 		  {
 			  FIELDS(b.blockchain_branch[i]);
@@ -471,14 +486,14 @@ namespace cryptonote
 
   public:
     block(): block_header(), hash_valid(false) {}
-    block(const block &b): block_header(b), hash_valid(false), miner_tx(b.miner_tx), tx_hashes(b.tx_hashes) { if (b.is_hash_valid()) { hash = b.hash; set_hash_valid(true); } }
-    block &operator=(const block &b) { block_header::operator=(b); hash_valid = false; miner_tx = b.miner_tx; tx_hashes = b.tx_hashes; if (b.is_hash_valid()) { hash = b.hash; set_hash_valid(true); } return *this; }
+    block(const block &b): block_header(b), hash_valid(false), miner_tx(b.miner_tx), parent_block(b.parent_block), tx_hashes(b.tx_hashes) { if (b.is_hash_valid()) { hash = b.hash; set_hash_valid(true); } }
+    block &operator=(const block &b) { block_header::operator=(b); hash_valid = false; miner_tx = b.miner_tx; parent_block = b.parent_block; tx_hashes = b.tx_hashes; if (b.is_hash_valid()) { hash = b.hash; set_hash_valid(true); } return *this; }
     void invalidate_hashes() { set_hash_valid(false); }
     bool is_hash_valid() const { return hash_valid.load(std::memory_order_acquire); }
     void set_hash_valid(bool v) const { hash_valid.store(v,std::memory_order_release); }
-	
+
 	bytecoin_block parent_block;
-	
+
     transaction miner_tx;
     std::vector<crypto::hash> tx_hashes;
 
@@ -490,12 +505,12 @@ namespace cryptonote
         set_hash_valid(false);
 
       FIELDS(*static_cast<block_header *>(this))
-	  
-	  if (major_version >= BLOCK_MAJOR_VERSION_2) {
+
+	  if (major_version == BLOCK_MAJOR_VERSION_2 || major_version == BLOCK_MAJOR_VERSION_3 || major_version == BLOCK_MAJOR_VERSION_4 || major_version == BLOCK_MAJOR_VERSION_5) {
 		  auto sbb = make_serializable_bytecoin_block(*this, false, false);
 		  FIELD_N("parent_block", sbb);
 	  }
-	  
+
       FIELD(miner_tx)
       FIELD(tx_hashes)
     END_SERIALIZE()

@@ -1,21 +1,21 @@
 // Copyright (c) 2014-2018, The Monero Project
-// 
+//
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification, are
 // permitted provided that the following conditions are met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright notice, this list of
 //    conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above copyright notice, this list
 //    of conditions and the following disclaimer in the documentation and/or other
 //    materials provided with the distribution.
-// 
+//
 // 3. Neither the name of the copyright holder nor the names of its contributors may be
 //    used to endorse or promote products derived from this software without specific
 //    prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 // MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
@@ -25,7 +25,7 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// 
+//
 // Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
 
 #include "include_base_utils.h"
@@ -990,7 +990,7 @@ namespace cryptonote
     }
     ++block_hashes_calculated_count;
      blobdata blob;
-	 
+
 	 if (!get_block_hashing_blob(b, blob))
 		return false;
 
@@ -1003,8 +1003,8 @@ namespace cryptonote
 
 		blob.append(parent_blob);
 	}
-	 
-	 
+
+
 	 bool ret = get_object_hash(blob, res);
     if (!ret)
       return false;
@@ -1059,15 +1059,23 @@ namespace cryptonote
 
     blobdata bd = get_block_hashing_blob(b);
     const int cn_variant = b.major_version >= BLOCK_MAJOR_VERSION_4 ? b.major_version - 3 : 0;
-    crypto::cn_slow_hash(bd.data(), bd.size(), res, cn_variant);
+    if(b.major_version <= 3){
+    crypto::cn_slow_hash(bd.data(), bd.size(), res, 0, cn_variant);
+  }else if(b.major_version >= 4){
+    crypto::cn_slow_hash(bd.data(), bd.size(), res, 1, cn_variant);
+  }
     return true;
-  } 
+  }
    bool get_bytecoin_block_longhash(const block& b, crypto::hash& res)
   {
 	  blobdata bd;
 	  if (!get_bytecoin_block_hashing_blob(b, bd))
 		  return false;
-	  crypto::cn_slow_hash(bd.data(), bd.size(), res);
+      if(b.major_version <= 3){
+      crypto::cn_slow_hash(bd.data(), bd.size(), res, 0, cn_variant);
+    }else if(b.major_version >= 4){
+      crypto::cn_slow_hash(bd.data(), bd.size(), res, 1, cn_variant);
+    }
 	  return true;
   }
   //---------------------------------------------------------------
@@ -1129,8 +1137,8 @@ namespace cryptonote
   {
 	  switch (bl.major_version)
 	  {
-	  case BLOCK_MAJOR_VERSION_1: 
-	  case BLOCK_MAJOR_VERSION_4: 
+	  case BLOCK_MAJOR_VERSION_1:
+	  case BLOCK_MAJOR_VERSION_4:
 		  return check_proof_of_work_v1(bl, current_diffic, proof_of_work);
 	  case BLOCK_MAJOR_VERSION_2:
 	  case BLOCK_MAJOR_VERSION_3:
