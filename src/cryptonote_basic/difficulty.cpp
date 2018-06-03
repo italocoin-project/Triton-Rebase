@@ -161,7 +161,7 @@ namespace cryptonote {
 
 
         return nextDiffZ;
-      }else if(height < 24859){
+      }
 
         size_t c_difficultyWindow = 24 * 60 * 60 / 180;
         size_t c_difficultyCut = 60;
@@ -209,6 +209,6 @@ namespace cryptonote {
           uint64_t nextDiffZ = low / timeSpan;
 
           return nextDiffZ;
-    }
+
       }
   }
