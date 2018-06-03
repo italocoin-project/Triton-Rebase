@@ -135,9 +135,9 @@ namespace cryptonote
   //---------------------------------------------------------------------------
   uint64_t checkpoints::get_max_height() const
   {
-    std::map< uint64_t, crypto::hash >::const_iterator highest = 
+    std::map< uint64_t, crypto::hash >::const_iterator highest =
         std::max_element( m_points.begin(), m_points.end(),
-                         ( boost::bind(&std::map< uint64_t, crypto::hash >::value_type::first, _1) < 
+                         ( boost::bind(&std::map< uint64_t, crypto::hash >::value_type::first, _1) <
                            boost::bind(&std::map< uint64_t, crypto::hash >::value_type::first, _2 ) ) );
     return highest->first;
   }
@@ -169,15 +169,14 @@ namespace cryptonote
     {
       return true;
     }
-    ADD_CHECKPOINT(1,     "771fbcd656ec1464d3a02ead5e18644030007a0fc664c0a964d30922821a8148");
-    ADD_CHECKPOINT(10,    "c0e3b387e47042f72d8ccdca88071ff96bff1ac7cde09ae113dbb7ad3fe92381");
-    ADD_CHECKPOINT(100,   "ac3e11ca545e57c49fca2b4e8c48c03c23be047c43e471e1394528b1f9f80b2d");
-    ADD_CHECKPOINT(1000,  "5acfc45acffd2b2e7345caf42fa02308c5793f15ec33946e969e829f40b03876");
-    ADD_CHECKPOINT(10000, "c758b7c81f928be3295d45e230646de8b852ec96a821eac3fea4daf3fcac0ca2");
-    ADD_CHECKPOINT(22231, "7cb10e29d67e1c069e6e11b17d30b809724255fee2f6868dc14cfc6ed44dfb25");
-    ADD_CHECKPOINT(29556, "53c484a8ed91e4da621bb2fa88106dbde426fe90d7ef07b9c1e5127fb6f3a7f6");
-    ADD_CHECKPOINT(50000, "0fe8758ab06a8b9cb35b7328fd4f757af530a5d37759f9d3e421023231f7b31c");
- 
+    ADD_CHECKPOINT(1,     "61fab02c04d60d6c9904dab46250a9e6d360f4724107bc83e7d63dfd9929b9df");
+    ADD_CHECKPOINT(10,    "81e222317a8582841803a95aab1474f35273cc358ee4c5e315af0d62a911f2dc");
+    ADD_CHECKPOINT(100,   "849482f53cbfb0fcd9b0210becc5f71e12cc86c9b08945e096c8aaed0a9a557d");
+    ADD_CHECKPOINT(1000,  "ccdc4ce7eb6ada472b042c6dfb08f37710c9902551c8d462143837d430f401ec");
+    ADD_CHECKPOINT(10000, "5ad571fee69a537387721bd7140e45420c28cd5771c7ecc91147021d4355ce60");
+    ADD_CHECKPOINT(22231, "5d3e611291941222acf60f7f0cde4f38d9a48c08892a75682ae7956f5ee4116e");
+    ADD_CHECKPOINT(29556, "86341c47a2acacf13a98aaa69d5843796590ab27b1ba2badb17c172cf03c5ff9");
+
 
     return true;
   }
@@ -226,10 +225,10 @@ namespace cryptonote
     static const std::vector<std::string> dns_urls = {
     };
 
-    static const std::vector<std::string> testnet_dns_urls = { 
+    static const std::vector<std::string> testnet_dns_urls = {
     };
 
-    static const std::vector<std::string> stagenet_dns_urls = { 
+    static const std::vector<std::string> stagenet_dns_urls = {
     };
 
     if (!tools::dns_utils::load_txt_records_from_dns(records, nettype == TESTNET ? testnet_dns_urls : nettype == STAGENET ? stagenet_dns_urls : dns_urls))
