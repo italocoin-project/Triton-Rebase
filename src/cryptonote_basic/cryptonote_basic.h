@@ -471,10 +471,10 @@ namespace cryptonote
 		}
       VARINT_FIELD(minor_version)
       if (major_version == BLOCK_MAJOR_VERSION_1 || major_version >= BLOCK_MAJOR_VERSION_4)
-		  VARINT_FIELD(timestamp)
+		    VARINT_FIELD(timestamp)
       FIELD(prev_id)
       if (major_version == BLOCK_MAJOR_VERSION_1 || major_version >= BLOCK_MAJOR_VERSION_4)
-		FIELD(nonce)
+		      FIELD(nonce)
     END_SERIALIZE()
   };
 

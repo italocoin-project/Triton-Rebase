@@ -96,13 +96,13 @@ static const struct {
 
   { 3, 3, 0, 1519744920 },
 
-  { 4, 24830, 0, 1524668700 },
+  { 4, 24831, 0, 1524668700 },
 
-  { 5, 24860, 0, 1524968340 },
+  { 5, 24861, 0, 1524968340 },
 
   { 7, 45000, 0, 1529338629 },
 };
-static const uint64_t mainnet_hard_fork_version_1_till = 24830;
+static const uint64_t mainnet_hard_fork_version_1_till = 0;
 
 static const struct {
   uint8_t version;
@@ -3291,13 +3291,15 @@ leave:
     MCLOG_RED(level, "global", "**********************************************************************");
   }
 
-  // this is a cheap test
+
   if (!m_hardfork->check(bl))
   {
     MERROR_VER("Block with id: " << id << std::endl << "has old version: " << (unsigned)bl.major_version << std::endl << "current: " << (unsigned)m_hardfork->get_current_version());
     bvc.m_verifivation_failed = true;
     goto leave;
   }
+
+
 
   TIME_MEASURE_FINISH(t1);
   TIME_MEASURE_START(t2);
@@ -4425,7 +4427,7 @@ void Blockchain::cancel()
 }
 
 #if defined(PER_BLOCK_CHECKPOINT)
-static const char expected_block_hashes_hash[] = "59261c03b54bcb21bd463f9fe40a94f40840a12642e9a3b3bfb11b35839a5fe3";
+static const char expected_block_hashes_hash[] = "";
 void Blockchain::load_compiled_in_block_hashes()
 {
   const bool testnet = m_nettype == TESTNET;
