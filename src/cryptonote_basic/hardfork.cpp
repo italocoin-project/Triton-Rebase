@@ -44,8 +44,7 @@ static uint8_t get_block_vote(const cryptonote::block &b)
   // For the purposes of voting, we consider 0 to refer to
   // version number 1, which is what all blocks from the genesis
   // block are. It makes things simpler.
-  if (b.major_version >= BLOCK_MAJOR_VERSION_1 &&
-		b.major_version <= BLOCK_MAJOR_VERSION_4){
+  if (b.major_version == BLOCK_MAJOR_VERSION_1){
 
 		return b.major_version;
   }
@@ -114,9 +113,13 @@ bool HardFork::do_check(uint8_t block_version, uint8_t voting_version) const
 {
 
 	MDEBUG("HardFork version check: comparing block versions " << (unsigned)block_version << " & " <<
-		(unsigned)heights[current_fork_index].version << " - voting version " << (unsigned)voting_version);
-  return block_version == heights[current_fork_index].version
-      && voting_version >= heights[current_fork_index].version;
+		(unsigned)heights[current_fork_index].version << " - voting version " << (unsigned)voting_version << " Block Version: " << (unsigned)block_version << " Height1:" << (unsigned)heights[current_fork_index].height << "Fork Index: " << (unsigned)current_fork_index
+    << "Voting Version: "<< (unsigned)voting_version  << " Heights1: " << (unsigned)heights[current_fork_index].height);
+    if((unsigned)heights[current_fork_index].height <= 3){
+      return true;
+    }else{
+  return block_version == heights[current_fork_index].version && voting_version >= heights[current_fork_index].version;
+  }
 }
 
 bool HardFork::check(const cryptonote::block &block) const

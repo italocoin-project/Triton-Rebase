@@ -376,7 +376,7 @@ namespace cryptonote
 	  serializable_bytecoin_block(bytecoin_block& b_, uint64_t& timestamp_, bool hashing_serialization_, bool header_only_) :
 		  b(b_), timestamp(timestamp_), hashing_serialization(hashing_serialization_), header_only(header_only_)
 	  {
-       b.miner_tx.is_mm_tx = true;
+      b.miner_tx.is_mm_tx = true;
 	  }
 
 	  BEGIN_SERIALIZE_OBJECT()
@@ -465,10 +465,6 @@ namespace cryptonote
 
     BEGIN_SERIALIZE()
       VARINT_FIELD(major_version)
-	  if (major_version > BLOCK_MAJOR_VERSION_4) {
-			MERROR("Block version is too high " << (unsigned)major_version);
-			return false;
-		}
       VARINT_FIELD(minor_version)
       if (major_version == BLOCK_MAJOR_VERSION_1 || major_version >= BLOCK_MAJOR_VERSION_4)
 		    VARINT_FIELD(timestamp)

@@ -89,20 +89,14 @@ static const struct {
   uint8_t threshold;
   time_t time;
 } mainnet_hard_forks[] = {
-
-  { 1, 1, 0, 1519744920 },
-
-  { 2, 2, 0, 1519744920 },
-
-  { 3, 3, 0, 1519744920 },
-
-  { 4, 24831, 0, 1524668700 },
-
-  { 5, 24861, 0, 1524968340 },
-
-  { 7, 45000, 0, 1529338629 },
+  { 1, 1, 0, 1519744920},
+  { 2, 2, 0, 1519744922},
+  { 3, 3, 0, 1519744940},
+  { 4, 24831, 0, 1524668700},
+  { 5, 24861, 0, 1524968340},
+  { 7, 45000, 0, 1529338629},
 };
-static const uint64_t mainnet_hard_fork_version_1_till = 0;
+static const uint64_t mainnet_hard_fork_version_1_till = 1;
 
 static const struct {
   uint8_t version;
@@ -328,6 +322,7 @@ bool Blockchain::init(BlockchainDB* db, const network_type nettype, bool offline
     else if (m_nettype == TESTNET)
       m_hardfork = new HardFork(*db, 1, testnet_hard_fork_version_1_till);
     else
+      LOG_ERROR("Attempted to hardfork");
       m_hardfork = new HardFork(*db, 1, mainnet_hard_fork_version_1_till);
   }
   if (m_nettype == FAKECHAIN)
@@ -2447,7 +2442,7 @@ bool Blockchain::check_tx_outputs(const transaction& tx, tx_verification_context
   const uint8_t hf_version = m_hardfork->get_current_version();
 
   // from hard fork 2, we forbid dust and compound outputs
-  if (hf_version >= 4) {
+  if (hf_version >= 2) {
     for (auto &o: tx.vout) {
       if (tx.version == 1)
       {
@@ -2599,7 +2594,7 @@ bool Blockchain::check_tx_inputs(transaction& tx, tx_verification_context &tvc, 
 
   // from hard fork 2, we require mixin at least 2 unless one output cannot mix with 2 others
   // if one output cannot mix with 2 others, we accept at most 1 output that can mix
-  if (hf_version >= 2)
+  if (hf_version >= 5)
   {
     size_t n_unmixable = 0, n_mixable = 0;
     size_t mixin = std::numeric_limits<size_t>::max();
