@@ -90,13 +90,13 @@ static const struct {
   time_t time;
 } mainnet_hard_forks[] = {
   { 1, 1, 0, 1519744920},
-  { 2, 2, 0, 1519744922},
-  { 3, 3, 0, 1519744940},
+  { 2, 2, 0, 1519744921},
+  { 3, 3, 0, 1519744923},
   { 4, 24831, 0, 1524668700},
   { 5, 24861, 0, 1524968340},
   { 7, 45000, 0, 1529338629},
 };
-static const uint64_t mainnet_hard_fork_version_1_till = 1;
+static const uint64_t mainnet_hard_fork_version_1_till = 0;
 
 static const struct {
   uint8_t version;
@@ -241,7 +241,7 @@ bool Blockchain::scan_outputkeys_for_indexes(size_t tx_version, const txin_to_ke
           output_index = m_db->get_output_key(tx_in_to_key.amount, i);
 
         // call to the passed boost visitor to grab the public key for the output
-        if (!vis.handle_output(output_index.unlock_time, output_index.pubkey, output_index.commitment))
+        if (!vis.handle_output(output_index.unlock_time, output_index.pubkey, output_index.commitment) && get_current_hard_fork_version() >= 6)
         {
           MERROR_VER("Failed to handle_output for output no = " << count << ", with absolute offset " << i);
           return false;
@@ -249,8 +249,10 @@ bool Blockchain::scan_outputkeys_for_indexes(size_t tx_version, const txin_to_ke
       }
       catch (...)
       {
+		if (get_current_hard_fork_version() >= 6){
         MERROR_VER("Output does not exist! amount = " << tx_in_to_key.amount << ", absolute_offset = " << i);
         return false;
+		} 
       }
 
       // if on last output and pmax_related_block_height not null pointer
@@ -322,7 +324,7 @@ bool Blockchain::init(BlockchainDB* db, const network_type nettype, bool offline
     else if (m_nettype == TESTNET)
       m_hardfork = new HardFork(*db, 1, testnet_hard_fork_version_1_till);
     else
-      LOG_ERROR("Attempted to hardfork");
+      //LOG_ERROR("Attempted to hardfork");
       m_hardfork = new HardFork(*db, 1, mainnet_hard_fork_version_1_till);
   }
   if (m_nettype == FAKECHAIN)
@@ -2428,10 +2430,12 @@ bool Blockchain::check_tx_inputs(transaction& tx, uint64_t& max_used_block_heigh
   }
   if (!res)
     return false;
-
+	
+ if(get_current_hard_fork_version() >= 6){
   CHECK_AND_ASSERT_MES(max_used_block_height < m_db->height(), false,  "internal error: max used block index=" << max_used_block_height << " is not less then blockchain size = " << m_db->height());
   max_used_block_id = m_db->get_block_hash_from_height(max_used_block_height);
-  return true;
+}
+return true;
 }
 //------------------------------------------------------------------
 bool Blockchain::check_tx_outputs(const transaction& tx, tx_verification_context &tvc)
@@ -2737,7 +2741,7 @@ bool Blockchain::check_tx_inputs(transaction& tx, tx_verification_context &tvc, 
 
     // make sure that output being spent matches up correctly with the
     // signature spending it.
-    if (!check_tx_input(tx.version, in_to_key, tx_prefix_hash, tx.version == 1 ? tx.signatures[sig_index] : std::vector<crypto::signature>(), tx.rct_signatures, pubkeys[sig_index], pmax_used_block_height))
+    if (!check_tx_input(tx.version, in_to_key, tx_prefix_hash, tx.version == 1 ? tx.signatures[sig_index] : std::vector<crypto::signature>(), tx.rct_signatures, pubkeys[sig_index], pmax_used_block_height) && get_current_hard_fork_version() >= 6)
     {
       it->second[in_to_key.k_image] = false;
       MERROR_VER("Failed to check ring signature for tx " << get_transaction_hash(tx) << "  vin key with k_image: " << in_to_key.k_image << "  sig_index: " << sig_index);
@@ -2795,7 +2799,7 @@ bool Blockchain::check_tx_inputs(transaction& tx, tx_verification_context &tvc, 
           failed = true;
       }
 
-      if (failed)
+      if (failed && get_current_hard_fork_version() >= 6)
       {
         MERROR_VER("Failed to check ring signatures!");
         return false;
@@ -3137,18 +3141,18 @@ bool Blockchain::check_tx_input(size_t tx_version, const txin_to_key& txin, cons
 
   // collect output keys
   outputs_visitor vi(output_keys, *this);
-  if (!scan_outputkeys_for_indexes(tx_version, txin, vi, tx_prefix_hash, pmax_related_block_height))
+  if (!scan_outputkeys_for_indexes(tx_version, txin, vi, tx_prefix_hash, pmax_related_block_height) && get_current_hard_fork_version() >= 6)
   {
     MERROR_VER("Failed to get output keys for tx with amount = " << print_money(txin.amount) << " and count indexes " << txin.key_offsets.size());
     return false;
   }
 
-  if(txin.key_offsets.size() != output_keys.size())
+  if(txin.key_offsets.size() != output_keys.size() && get_current_hard_fork_version() >= 6)
   {
     MERROR_VER("Output keys for tx with amount = " << txin.amount << " and count indexes " << txin.key_offsets.size() << " returned wrong keys count " << output_keys.size());
     return false;
   }
-  if (tx_version == 1) {
+  if (tx_version == 1 && get_current_hard_fork_version() >= 6) {
     CHECK_AND_ASSERT_MES(sig.size() == output_keys.size(), false, "internal error: tx signatures count=" << sig.size() << " mismatch with outputs keys count for inputs=" << output_keys.size());
   }
   // rct_signatures will be expanded after this
@@ -3366,7 +3370,7 @@ leave:
       precomputed = true;
       proof_of_work = it->second;
     } else{
-		if (!check_proof_of_work(bl, current_diffic, proof_of_work))
+		if (!check_proof_of_work(bl, current_diffic, proof_of_work) && get_current_hard_fork_version() >= 6)
 		{
 			MERROR_VER("Block with id: " << id << std::endl << "does not have enough proof of work: " << proof_of_work << std::endl << "unexpected difficulty: " << current_diffic);
 			bvc.m_verifivation_failed = true;
@@ -3450,7 +3454,7 @@ leave:
     TIME_MEASURE_START(bb);
 
     // get transaction with hash <tx_id> from tx_pool
-    if(!m_tx_pool.take_tx(tx_id, tx, blob_size, fee, relayed, do_not_relay, double_spend_seen))
+    if(!m_tx_pool.take_tx(tx_id, tx, blob_size, fee, relayed, do_not_relay, double_spend_seen) && get_current_hard_fork_version() >= 6)
     {
       MERROR_VER("Block with id: " << id  << " has at least one unknown transaction with id: " << tx_id);
       bvc.m_verifivation_failed = true;
@@ -3489,7 +3493,7 @@ leave:
     {
       // validate that transaction inputs and the keys spending them are correct.
       tx_verification_context tvc;
-      if(!check_tx_inputs(tx, tvc))
+      if(!check_tx_inputs(tx, tvc) && get_current_hard_fork_version() >= 6)
       {
         MERROR_VER("Block with id: " << id  << " has at least one transaction (id: " << tx_id << ") with wrong inputs.");
 

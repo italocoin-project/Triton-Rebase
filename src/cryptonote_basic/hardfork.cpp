@@ -44,10 +44,9 @@ static uint8_t get_block_vote(const cryptonote::block &b)
   // For the purposes of voting, we consider 0 to refer to
   // version number 1, which is what all blocks from the genesis
   // block are. It makes things simpler.
-  if (b.major_version == BLOCK_MAJOR_VERSION_1){
-
+if (b.major_version >= BLOCK_MAJOR_VERSION_1 &&
+		b.major_version <= BLOCK_MAJOR_VERSION_5)
 		return b.major_version;
-  }
   if (b.minor_version == 0)
     return 1;
   return b.minor_version;

@@ -1073,7 +1073,7 @@ skip:
             std::list<blobdata>::const_iterator it = block_entry.txs.begin();
             for (size_t i = 0; i < tvc.size(); ++i, ++it)
             {
-              if(tvc[i].m_verifivation_failed)
+              if(tvc[i].m_verifivation_failed && m_core.get_ideal_hard_fork_version(m_core.get_current_blockchain_height()) >= 6)
               {
                 if (!m_p2p->for_connection(span_connection_id, [&](cryptonote_connection_context& context, nodetool::peerid_type peer_id, uint32_t f)->bool{
                   LOG_ERROR_CCONTEXT("transaction verification failed on NOTIFY_RESPONSE_GET_OBJECTS, tx_id = "

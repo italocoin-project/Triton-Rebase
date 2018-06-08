@@ -736,9 +736,9 @@ namespace cryptonote
       }
 
       ok &= add_new_tx(results[i].tx, results[i].hash, results[i].prefix_hash, it->size(), tvc[i], keeped_by_block, relayed, do_not_relay);
-      if(tvc[i].m_verifivation_failed)
+      if(tvc[i].m_verifivation_failed && m_blockchain_storage.get_current_hard_fork_version() >= 6)
       {MERROR_VER("Transaction verification failed: " << results[i].hash);}
-      else if(tvc[i].m_verifivation_impossible)
+      else if(tvc[i].m_verifivation_impossible && m_blockchain_storage.get_current_hard_fork_version() >= 6)
       {MERROR_VER("Transaction verification impossible: " << results[i].hash);}
 
       if(tvc[i].m_added_to_pool)
@@ -810,7 +810,7 @@ namespace cryptonote
       get_inputs_money_amount(tx, amount_in);
       uint64_t amount_out = get_outs_money_amount(tx);
 
-      if(amount_in <= amount_out)
+      if(amount_in <= amount_out && m_blockchain_storage.get_current_hard_fork_version() >= 6)
       {
         MERROR_VER("tx with wrong amounts: ins " << amount_in << ", outs " << amount_out << ", rejected for tx id= " << get_transaction_hash(tx));
         return false;
